@@ -1,0 +1,324 @@
+# Blockchain implementation
+
+## Dependencies
+
+```elixir
+Mix.install([:ex_crypto])
+```
+
+## Section 3.1: Wallet
+
+```elixir
+defmodule Blockchain.Wallet do
+  @moduledoc """
+  Implementation of a blockchain wallet. Wallets are used in transactions
+  and determine the source and destination of sending or receiving money.
+  """
+
+  @enforce_keys [:private_key, :public_key]
+  defstruct @enforce_keys
+
+  @typedoc """
+  Represents a wallet
+  """
+  @type t :: %__MODULE__{
+          private_key: ExPublicKey.RSAPrivateKey.t(),
+          public_key: ExPublicKey.RSAPublicKey.t()
+        }
+
+  @doc """
+  Creates a new wallet
+  """
+  @spec new() :: __MODULE__.t()
+  def new do
+    {:ok, private_key} = ExPublicKey.generate_key(:rsa, 512, 65537)
+    {:ok, public_key} = ExPublicKey.public_key_from_private_key(private_key)
+
+    %__MODULE__{
+      private_key: private_key,
+      public_key: public_key
+    }
+  end
+end
+
+# Blockchain.Wallet.new()
+```
+
+##### Exercise 3-1
+
+```elixir
+wallet = Blockchain.Wallet.new()
+```
+
+##### Exercise 3-2
+
+```elixir
+IO.inspect(wallet.private_key, label: "private key")
+IO.inspect(wallet.public_key, label: "public_key")
+```
+
+##### Exercise 3-3
+
+Documentation links for the ExCrypto package:
+
+* [GitHub](https://github.com/ntrepid8/ex_crypto)
+* [HexDocs](https://hexdocs.pm/ex_crypto/api-reference.html)
+
+## Section 3.2: Block
+
+```elixir
+defmodule Blockchain.Transaction do
+  @moduledoc """
+  Implements a blockchain transaction
+  """
+
+  @enforce_keys [:signature, :from, :to, :value]
+  defstruct @enforce_keys
+
+  @typedoc """
+  Represents a transaction
+  """
+  @type t :: %__MODULE__{
+          signature: String.t(),
+          from: String.t(),
+          to: String.t(),
+          value: String.t()
+        }
+
+  @doc """
+  Creates a new transaction
+  """
+  @spec new() :: __MODULE__.t()
+  def new() do
+    %__MODULE__{
+      signature: "",
+      from: "",
+      to: "",
+      value: ""
+    }
+  end
+
+  @doc """
+  Creates a new transaction
+  """
+  @spec new(String.t(), String.t(), String.t(), String.t()) :: __MODULE__.t()
+  def new(signature, from, to, value) do
+    %__MODULE__{
+      signature: signature,
+      from: from,
+      to: to,
+      value: value
+    }
+  end
+end
+
+defmodule Blockchain.Block do
+  @moduledoc """
+  Implements a blockchain block, which is a building block of the blockchain.
+  Blocks are limited to containing transactions.
+  """
+
+  alias Blockchain.Transaction
+
+  @enforce_keys [:current_hash, :previous_hash, :data, :timestamp, :nonce]
+  defstruct @enforce_keys
+
+  @typedoc """
+  Represents a block
+  """
+  @type t :: %__MODULE__{
+          current_hash: String.t(),
+          previous_hash: String.t(),
+          data: Transaction.t(),
+          timestamp: DateTime.t(),
+          nonce: integer()
+        }
+
+  @doc """
+  Calculates a block's hash using the SHA hashing algorithm
+  """
+  @spec calculate_block_hash(String.t(), DateTime.t(), Transaction.t(), integer()) :: String.t()
+  def calculate_block_hash(previous_hash, timestamp, transaction, nonce) do
+    # Append all data as a list binaries or strings and then hash the list
+    ExCrypto.Hash.sha256!([
+      previous_hash,
+      DateTime.to_string(timestamp),
+      :erlang.term_to_binary(transaction),
+      Integer.to_string(nonce)
+    ])
+  end
+
+  @doc """
+  Calculates a block's hash using the SHA hashing algorithm
+  """
+  @spec calculate_block_hash(Block.t()) :: String.t()
+  def calculate_block_hash(block) do
+    calculate_block_hash(block.previous_hash, block.timestamp, block.data, block.nonce)
+  end
+
+  @doc """
+  Determines if a block is valid or not by re-calculating the block's hash and comparing it
+  to the block's current hash
+  """
+  @spec valid_block?(Block.t()) :: boolean()
+  def valid_block?(block) do
+    block.current_hash ==
+      calculate_block_hash(block.previous_hash, block.timestamp, block.data, block.nonce)
+  end
+
+  # Helper function to set the number of bytes a target will have
+  @spec difficulty :: integer()
+  defp difficulty, do: 2
+
+  # A target for comparing hashes of blocks
+  @spec target :: String.t()
+  defp target, do: String.duplicate(<<32>>, difficulty())
+
+  @doc """
+  Determines if a block has been mined according to if the given hash matches
+  the target
+  """
+  @spec mined_block?(String.t()) :: boolean()
+  def mined_block?(block_hash) do
+    binary_part(block_hash, 1, difficulty()) == binary_part(target(), 0, difficulty())
+  end
+
+  @doc """
+  Implements the Hashcash procedure
+  """
+  @spec make_and_mine_block(String.t(), DateTime.t(), Transaction.t(), integer()) ::
+          __MODULE__.t()
+  def make_and_mine_block(previous_hash, timestamp, transaction, nonce) do
+    current_hash = calculate_block_hash(previous_hash, timestamp, transaction, nonce)
+
+    if mined_block?(current_hash) do
+      %__MODULE__{
+        current_hash: current_hash,
+        previous_hash: previous_hash,
+        data: transaction,
+        timestamp: timestamp,
+        nonce: nonce
+      }
+    else
+      make_and_mine_block(previous_hash, timestamp, transaction, nonce + 1)
+    end
+  end
+
+  @doc """
+  Implements the Hashcash procedure
+  """
+  @spec make_and_mine_block(Block.t()) :: Block.t()
+  def make_and_mine_block(block) do
+    make_and_mine_block(block.previous_hash, block.timestamp, block.data, block.nonce)
+  end
+
+  @doc """
+  Mines a block at the current time
+  """
+  @spec mine_block(Transaction.t(), String.t()) :: __MODULE__.t()
+  def mine_block(transaction, previous_hash) do
+    make_and_mine_block(previous_hash, DateTime.utc_now(), transaction, 1)
+  end
+end
+
+# ExCrypto.Hash.sha256!(["tet", DateTime.utc_now() |> DateTime.to_string(), "asdf"])
+# |> String.downcase()
+# |> Base.encode16()
+
+# Blockchain.Block.calculate_block_hash("previous hash", DateTime.utc_now(), Blockchain.Transaction.new(), 1)
+
+# Blockchain.Block.target()
+
+# binary_part("asdf", 0, 2)
+```
+
+```elixir
+alias Blockchain.Block
+alias Blockchain.Transaction
+
+mined_block =
+  Block.make_and_mine_block(
+    "234",
+    DateTime.utc_now(),
+    Transaction.new("BoroS", "Boro", "You", "a book"),
+    1
+  )
+```
+
+#####
+
+<!-- livebook:{"break_markdown":true} -->
+
+##### Exercise 3-4
+
+```elixir
+transaction = Transaction.new("signature", "Bob", "Alice", "SICP")
+
+block = %Block{
+  current_hash: "",
+  previous_hash: "",
+  data: transaction,
+  timestamp: DateTime.utc_now(),
+  nonce: 1
+}
+
+Block.calculate_block_hash(block)
+```
+
+##### Exercise 3-5
+
+```elixir
+mined_block = Block.make_and_mine_block(block)
+```
+
+##### Exercise 3-6
+
+```elixir
+IO.inspect(Block.valid_block?(mined_block), label: "Mined block valid?")
+
+IO.inspect(Block.valid_block?(%{mined_block | nonce: 1}), label: "Block with nonce=1 valid?")
+```
+
+## Section 3.3: Utilities
+
+```elixir
+defmodule Blockchain.Utilities do
+  @moduledoc """
+  Common procedures
+  """
+
+  @doc """
+  Returns true if the given predicate is true for all members of the given list,
+  otherwise returns false
+
+  ### Examples
+    iex> Utilities.true_for_all?(fn x -> x > 3 end, [1, 2, 3])
+    false
+
+    iex> Utilities.true_for_all?(fn x -> x > 3 end, [4, 5, 6])
+    true
+  """
+  @spec true_for_all?((any() -> boolean()), list()) :: any()
+  def true_for_all?(predicate, list) do
+    Enum.all?(list, predicate)
+  end
+
+  @doc """
+  Writes any Elixir data to a file
+  """
+  @spec map_to_file(map(), String.t()) :: :ok
+  def map_to_file(map, file) do
+    File.write!(file, :erlang.term_to_binary(map))
+  end
+
+  @doc """
+  Reads any Elixir data from a file"""
+  @spec file_to_map(String.t()) :: term()
+  def file_to_map(file) do
+    file
+    |> File.read!()
+    |> :erlang.binary_to_term()
+  end
+end
+
+```
