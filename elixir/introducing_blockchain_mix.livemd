@@ -1,0 +1,90 @@
+# Blockchain implementation
+
+## Aliases
+
+```elixir
+alias Blockchain.{Wallet, Transaction, Block, Utilities}
+```
+
+## Section 3.1: Wallet
+
+##### Exercise 3-1
+
+```elixir
+wallet = Wallet.new()
+```
+
+##### Exercise 3-2
+
+```elixir
+IO.inspect(wallet.private_key, label: "private key")
+IO.inspect(wallet.public_key, label: "public_key")
+```
+
+##### Exercise 3-3
+
+Documentation links for the ExCrypto package:
+
+* [GitHub](https://github.com/ntrepid8/ex_crypto)
+* [HexDocs](https://hexdocs.pm/ex_crypto/api-reference.html)
+
+## Section 3.2: Block
+
+```elixir
+# ExCrypto.Hash.sha256!(["tet", DateTime.utc_now() |> DateTime.to_string(), "asdf"])
+# |> String.downcase()
+# |> Base.encode16()
+
+# Blockchain.Block.calculate_block_hash("previous hash", DateTime.utc_now(), Blockchain.Transaction.new(), 1)
+
+# Blockchain.Block.target()
+
+# binary_part("asdf", 0, 2)
+```
+
+```elixir
+alias Blockchain.Block
+alias Blockchain.Transaction
+
+mined_block =
+  Block.make_and_mine_block(
+    "234",
+    DateTime.utc_now(),
+    Transaction.new("BoroS", "Boro", "You", "a book"),
+    1
+  )
+```
+
+#####
+
+<!-- livebook:{"break_markdown":true} -->
+
+##### Exercise 3-4
+
+```elixir
+transaction = Transaction.new("signature", "Bob", "Alice", "SICP")
+
+block = %Block{
+  current_hash: "",
+  previous_hash: "",
+  data: transaction,
+  timestamp: DateTime.utc_now(),
+  nonce: 1
+}
+
+Block.calculate_block_hash(block)
+```
+
+##### Exercise 3-5
+
+```elixir
+mined_block = Block.make_and_mine_block(block)
+```
+
+##### Exercise 3-6
+
+```elixir
+IO.inspect(Block.valid_block?(mined_block), label: "Mined block valid?")
+
+IO.inspect(Block.valid_block?(%{mined_block | nonce: 1}), label: "Block with nonce=1 valid?")
+```
