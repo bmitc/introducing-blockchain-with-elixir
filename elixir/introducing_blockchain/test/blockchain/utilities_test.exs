@@ -1,5 +1,5 @@
 defmodule Blockchain.UtilitiesTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   alias Blockchain.Transaction
   alias Blockchain.Utilities

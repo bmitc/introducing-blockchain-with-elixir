@@ -3,7 +3,14 @@
 ## Aliases
 
 ```elixir
-alias Blockchain.{Wallet, Transaction, Block, Utilities}
+alias Blockchain.{
+  Block,
+  Hash,
+  Transaction,
+  TransactionIO,
+  Utilities,
+  Wallet
+}
 ```
 
 ## Section 3.1: Wallet
@@ -48,11 +55,15 @@ alias Blockchain.Transaction
 
 mined_block =
   Block.make_and_mine_block(
-    "234",
+    Hash.new("234"),
     DateTime.utc_now(),
     Transaction.new("BoroS", "Boro", "You", "a book"),
     1
   )
+```
+
+```elixir
+Hash.new("test")
 ```
 
 #####
@@ -65,8 +76,8 @@ mined_block =
 transaction = Transaction.new("signature", "Bob", "Alice", "SICP")
 
 block = %Block{
-  current_hash: "",
-  previous_hash: "",
+  current_hash: Hash.new(""),
+  previous_hash: Hash.new(""),
   data: transaction,
   timestamp: DateTime.utc_now(),
   nonce: 1
@@ -87,4 +98,27 @@ mined_block = Block.make_and_mine_block(block)
 IO.inspect(Block.valid_block?(mined_block), label: "Mined block valid?")
 
 IO.inspect(Block.valid_block?(%{mined_block | nonce: 1}), label: "Block with nonce=1 valid?")
+```
+
+## Section 3.4: Transactions
+
+```elixir
+IO.inspect(TransactionIO.new(123, "Some person"), label: "New TransactionIO")
+
+transaction_io = TransactionIO.new(123, "Some person")
+
+IO.inspect(
+  TransactionIO.valid_transaction_io?(transaction_io),
+  label: "Valid TransactionIO?"
+)
+
+IO.inspect(
+  TransactionIO.valid_transaction_io?(%TransactionIO{
+    transaction_hash: Hash.new("badhash"),
+    value: 123,
+    owner: "Some Person",
+    timestamp: DateTime.utc_now()
+  }),
+  label: "Valid TransactionIO?"
+)
 ```

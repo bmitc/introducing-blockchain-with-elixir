@@ -3,6 +3,8 @@ defmodule Blockchain.Transaction do
   Implements a blockchain transaction
   """
 
+  alias Blockchain.Hash
+
   @enforce_keys [:signature, :from, :to, :value]
   defstruct @enforce_keys
 
@@ -10,7 +12,7 @@ defmodule Blockchain.Transaction do
   Represents a transaction
   """
   @type t :: %__MODULE__{
-          signature: String.t(),
+          signature: Hash.t(),
           from: String.t(),
           to: String.t(),
           value: String.t()
@@ -22,7 +24,7 @@ defmodule Blockchain.Transaction do
   @spec new() :: __MODULE__.t()
   def new do
     %__MODULE__{
-      signature: "",
+      signature: Hash.new(""),
       from: "",
       to: "",
       value: ""
@@ -32,7 +34,7 @@ defmodule Blockchain.Transaction do
   @doc """
   Creates a new transaction
   """
-  @spec new(String.t(), String.t(), String.t(), String.t()) :: __MODULE__.t()
+  @spec new(Hash.t(), String.t(), String.t(), String.t()) :: __MODULE__.t()
   def new(signature, from, to, value) do
     %__MODULE__{
       signature: signature,
