@@ -4,6 +4,7 @@ defmodule Blockchain.TransactionIO do
   """
 
   alias Blockchain.Hash
+  alias Blockchain.Wallet
 
   @enforce_keys [:transaction_hash, :value, :owner, :timestamp]
   defstruct @enforce_keys
@@ -14,15 +15,15 @@ defmodule Blockchain.TransactionIO do
   @type t :: %__MODULE__{
           transaction_hash: Hash.t(),
           value: integer(),
-          owner: String.t(),
+          owner: Wallet.t(),
           timestamp: DateTime.t()
         }
 
   @doc """
   Create a new transaction IO
   """
-  @spec new(integer(), String.t()) :: __MODULE__.t()
-  def new(value, owner) do
+  @spec new(integer(), Wallet.t()) :: __MODULE__.t()
+  def new(value, %Wallet{} = owner) do
     timestamp = DateTime.utc_now()
 
     %__MODULE__{
@@ -36,12 +37,12 @@ defmodule Blockchain.TransactionIO do
   @doc """
   Calculates a transaction IO hash using the SHA hashing algorithm
   """
-  @spec calculate_transaction_io_hash(integer(), String.t(), DateTime.t()) :: Hash.t()
-  def calculate_transaction_io_hash(value, owner, timestamp) do
+  @spec calculate_transaction_io_hash(integer(), Wallet.t(), DateTime.t()) :: Hash.t()
+  def calculate_transaction_io_hash(value, %Wallet{} = owner, timestamp) do
     # Append all data as a list of binaries or strings and then hash the list
     ExCrypto.Hash.sha256!([
       Integer.to_string(value),
-      owner,
+      :erlang.term_to_binary(owner),
       DateTime.to_string(timestamp)
     ])
     |> Hash.new()
@@ -51,7 +52,7 @@ defmodule Blockchain.TransactionIO do
   Calculates a transaction IO hash using the SHA hashing algorithm
   """
   @spec calculate_transaction_io_hash(__MODULE__.t()) :: Hash.t()
-  def calculate_transaction_io_hash(transaction_io) do
+  def calculate_transaction_io_hash(%__MODULE__{} = transaction_io) do
     calculate_transaction_io_hash(
       transaction_io.value,
       transaction_io.owner,
@@ -64,7 +65,7 @@ defmodule Blockchain.TransactionIO do
   hash and comparing it to the transaction IO's hash
   """
   @spec valid_transaction_io?(__MODULE__.t()) :: boolean()
-  def valid_transaction_io?(transaction_io) do
+  def valid_transaction_io?(%__MODULE__{} = transaction_io) do
     transaction_io.transaction_hash == calculate_transaction_io_hash(transaction_io)
   end
 end

@@ -122,3 +122,8 @@ IO.inspect(
   label: "Valid TransactionIO?"
 )
 ```
+
+```elixir
+wallet = Wallet.new()
+ExPublicKey.encrypt_private(ExCrypto.Hash.sha256!(["test", "asdf"]), wallet.private_key)
+```
