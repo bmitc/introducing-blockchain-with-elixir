@@ -159,7 +159,9 @@
           {Credo.Check.Warning.UnsafeExec, []},
 
           # From disabled, controversial and experimental checks
-          {Credo.Check.Readability.Specs, [include_defp: true]}
+          {Credo.Check.Readability.AliasAs, []},
+          {Credo.Check.Readability.MultiAlias, []},
+          {Credo.Check.Readability.Specs, [include_defp: true]},
         ],
         disabled: [
           #
@@ -173,10 +175,10 @@
           {Credo.Check.Consistency.UnusedVariableNames, []},
           {Credo.Check.Design.DuplicatedCode, []},
           {Credo.Check.Design.SkipTestWithoutComment, []},
-          {Credo.Check.Readability.AliasAs, []},
+          # {Credo.Check.Readability.AliasAs, []},
           {Credo.Check.Readability.BlockPipe, []},
           {Credo.Check.Readability.ImplTrue, []},
-          {Credo.Check.Readability.MultiAlias, []},
+          # {Credo.Check.Readability.MultiAlias, []},
           {Credo.Check.Readability.NestedFunctionCalls, []},
           {Credo.Check.Readability.SeparateAliasRequire, []},
           {Credo.Check.Readability.SingleFunctionToBlockPipe, []},
