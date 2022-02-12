@@ -36,7 +36,7 @@ defmodule Blockchain.Hash do
   Converts a hash to an Elixir string
   """
   @spec to_string(__MODULE__.t()) :: String.t()
-  def to_string(hash) do
+  def to_string(%__MODULE__{} = hash) do
     hash.value |> Base.decode16!(case: :lower)
   end
 
@@ -55,7 +55,8 @@ defmodule Blockchain.Hash do
   Hash.new("st")
   """
   @spec part(__MODULE__.t(), non_neg_integer(), integer()) :: __MODULE__.t()
-  def part(%{value: value}, start, length) do
+  def part(%{value: value}, start, length)
+      when is_integer(start) and start >= 0 and is_integer(length) do
     value
     |> Base.decode16!(case: :lower)
     |> binary_part(start, length)

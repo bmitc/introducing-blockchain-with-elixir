@@ -14,7 +14,7 @@ defmodule Blockchain.TransactionIO do
   """
   @type t :: %__MODULE__{
           transaction_hash: Hash.t(),
-          value: integer(),
+          value: number(),
           owner: Wallet.t(),
           timestamp: DateTime.t()
         }
@@ -22,7 +22,7 @@ defmodule Blockchain.TransactionIO do
   @doc """
   Create a new transaction IO
   """
-  @spec new(integer(), Wallet.t()) :: __MODULE__.t()
+  @spec new(number(), Wallet.t()) :: __MODULE__.t()
   def new(value, %Wallet{} = owner) do
     timestamp = DateTime.utc_now()
 
@@ -37,11 +37,11 @@ defmodule Blockchain.TransactionIO do
   @doc """
   Calculates a transaction IO hash using the SHA hashing algorithm
   """
-  @spec calculate_transaction_io_hash(integer(), Wallet.t(), DateTime.t()) :: Hash.t()
-  def calculate_transaction_io_hash(value, %Wallet{} = owner, timestamp) do
+  @spec calculate_transaction_io_hash(number(), Wallet.t(), DateTime.t()) :: Hash.t()
+  def calculate_transaction_io_hash(value, %Wallet{} = owner, %DateTime{} = timestamp) do
     # Append all data as a list of binaries or strings and then hash the list
     ExCrypto.Hash.sha256!([
-      Integer.to_string(value),
+      to_string(value),
       :erlang.term_to_binary(owner),
       DateTime.to_string(timestamp)
     ])

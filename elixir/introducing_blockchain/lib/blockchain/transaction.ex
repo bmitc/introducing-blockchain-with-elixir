@@ -158,6 +158,9 @@ defmodule Blockchain.Transaction do
     verified?
   end
 
+  @doc """
+  Validates a transaction
+  """
   @spec valid_transaction?(__MODULE__.t()) :: boolean()
   def valid_transaction?(%__MODULE__{inputs: inputs, outputs: outputs} = transaction) do
     sum_inputs = sum_transaction_io_list(inputs)
@@ -170,6 +173,7 @@ defmodule Blockchain.Transaction do
     ])
   end
 
+  # Helper function to sum all `TransactionIO` values
   @spec sum_transaction_io_list([TransactionIO.t()]) :: integer()
   defp sum_transaction_io_list(transaction_io_list) do
     transaction_io_list

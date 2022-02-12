@@ -25,7 +25,12 @@ defmodule Blockchain.Block do
   Calculates a block's hash using the SHA hashing algorithm
   """
   @spec calculate_block_hash(Hash.t(), DateTime.t(), Transaction.t(), integer()) :: Hash.t()
-  def calculate_block_hash(previous_hash, timestamp, transaction, nonce) do
+  def calculate_block_hash(
+        previous_hash,
+        %DateTime{} = timestamp,
+        %Transaction{} = transaction,
+        nonce
+      ) do
     # Append all data as a list of binaries or strings and then hash the list
     ExCrypto.Hash.sha256!([
       Hash.to_string(previous_hash),
@@ -40,7 +45,7 @@ defmodule Blockchain.Block do
   Calculates a block's hash using the SHA hashing algorithm
   """
   @spec calculate_block_hash(__MODULE__.t()) :: Hash.t()
-  def calculate_block_hash(block) do
+  def calculate_block_hash(%__MODULE__{} = block) do
     calculate_block_hash(block.previous_hash, block.timestamp, block.data, block.nonce)
   end
 
@@ -49,7 +54,7 @@ defmodule Blockchain.Block do
   to the block's current hash
   """
   @spec valid_block?(__MODULE__.t()) :: boolean()
-  def valid_block?(block) do
+  def valid_block?(%__MODULE__{} = block) do
     block.current_hash ==
       calculate_block_hash(block.previous_hash, block.timestamp, block.data, block.nonce)
   end
@@ -79,8 +84,19 @@ defmodule Blockchain.Block do
   Implements the Hashcash procedure
   """
   @spec make_and_mine_block(Hash.t(), DateTime.t(), Transaction.t(), integer()) :: __MODULE__.t()
-  def make_and_mine_block(previous_hash, timestamp, transaction, nonce) do
-    current_hash = calculate_block_hash(previous_hash, timestamp, transaction, nonce)
+  def make_and_mine_block(
+        previous_hash,
+        %DateTime{} = timestamp,
+        %Transaction{} = transaction,
+        nonce
+      ) do
+    current_hash =
+      calculate_block_hash(
+        previous_hash,
+        timestamp,
+        %Transaction{} = transaction,
+        nonce
+      )
 
     if mined_block?(current_hash) do
       %__MODULE__{
@@ -99,7 +115,7 @@ defmodule Blockchain.Block do
   Implements the Hashcash procedure
   """
   @spec make_and_mine_block(__MODULE__.t()) :: __MODULE__.t()
-  def make_and_mine_block(block) do
+  def make_and_mine_block(%__MODULE__{} = block) do
     make_and_mine_block(block.previous_hash, block.timestamp, block.data, block.nonce)
   end
 
@@ -107,7 +123,7 @@ defmodule Blockchain.Block do
   Mines a block at the current time
   """
   @spec mine_block(Transaction.t(), Hash.t()) :: __MODULE__.t()
-  def mine_block(transaction, previous_hash) do
+  def mine_block(%Transaction{} = transaction, previous_hash) do
     make_and_mine_block(previous_hash, DateTime.utc_now(), transaction, 1)
   end
 end
