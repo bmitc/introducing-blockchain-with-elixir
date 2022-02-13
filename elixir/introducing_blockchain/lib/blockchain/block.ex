@@ -24,8 +24,8 @@ defmodule Blockchain.Block do
   @doc """
   Calculates a block's hash using the SHA hashing algorithm
   """
-  @spec calculate_block_hash(Hash.t(), DateTime.t(), Transaction.t(), integer()) :: Hash.t()
-  def calculate_block_hash(
+  @spec calculate_hash(Hash.t(), DateTime.t(), Transaction.t(), integer()) :: Hash.t()
+  def calculate_hash(
         previous_hash,
         %DateTime{} = timestamp,
         %Transaction{} = transaction,
@@ -44,39 +44,27 @@ defmodule Blockchain.Block do
   @doc """
   Calculates a block's hash using the SHA hashing algorithm
   """
-  @spec calculate_block_hash(__MODULE__.t()) :: Hash.t()
-  def calculate_block_hash(%__MODULE__{} = block) do
-    calculate_block_hash(block.previous_hash, block.timestamp, block.data, block.nonce)
+  @spec calculate_hash(__MODULE__.t()) :: Hash.t()
+  def calculate_hash(%__MODULE__{} = block) do
+    calculate_hash(block.previous_hash, block.timestamp, block.data, block.nonce)
   end
 
   @doc """
   Determines if a block is valid or not by re-calculating the block's hash and comparing it
   to the block's current hash
   """
-  @spec valid_block?(__MODULE__.t()) :: boolean()
-  def valid_block?(%__MODULE__{} = block) do
+  @spec valid?(__MODULE__.t()) :: boolean()
+  def valid?(%__MODULE__{} = block) do
     block.current_hash ==
-      calculate_block_hash(block.previous_hash, block.timestamp, block.data, block.nonce)
-  end
-
-  # Helper function to set the number of bytes a target will have
-  @spec difficulty :: non_neg_integer()
-  defp difficulty, do: 2
-
-  # A target for comparing hashes of blocks
-  @spec target :: Hash.t()
-  defp target do
-    <<32>>
-    |> String.duplicate(difficulty())
-    |> Hash.new()
+      calculate_hash(block.previous_hash, block.timestamp, block.data, block.nonce)
   end
 
   @doc """
   Determines if a block has been mined according to if the given hash matches
   the target
   """
-  @spec mined_block?(Hash.t()) :: boolean()
-  def mined_block?(block_hash) do
+  @spec mined?(Hash.t()) :: boolean()
+  def mined?(block_hash) do
     Hash.part(block_hash, 0, difficulty()) == Hash.part(target(), 0, difficulty())
   end
 
@@ -91,14 +79,14 @@ defmodule Blockchain.Block do
         nonce
       ) do
     current_hash =
-      calculate_block_hash(
+      calculate_hash(
         previous_hash,
         timestamp,
         %Transaction{} = transaction,
         nonce
       )
 
-    if mined_block?(current_hash) do
+    if mined?(current_hash) do
       %__MODULE__{
         current_hash: current_hash,
         previous_hash: previous_hash,
@@ -125,5 +113,17 @@ defmodule Blockchain.Block do
   @spec mine_block(Transaction.t(), Hash.t()) :: __MODULE__.t()
   def mine_block(%Transaction{} = transaction, previous_hash) do
     make_and_mine_block(previous_hash, DateTime.utc_now(), transaction, 1)
+  end
+
+  # Helper function to set the number of bytes a target will have
+  @spec difficulty :: non_neg_integer()
+  defp difficulty, do: 2
+
+  # A target for comparing hashes of blocks
+  @spec target :: Hash.t()
+  defp target do
+    <<32>>
+    |> String.duplicate(difficulty())
+    |> Hash.new()
   end
 end

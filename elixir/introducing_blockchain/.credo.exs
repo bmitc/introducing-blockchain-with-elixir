@@ -160,8 +160,40 @@
 
           # From disabled, controversial and experimental checks
           {Credo.Check.Readability.AliasAs, []},
+          {Credo.Check.Readability.ImplTrue, []},
           {Credo.Check.Readability.MultiAlias, []},
+          {Credo.Check.Readability.SeparateAliasRequire, []},
           {Credo.Check.Readability.Specs, [include_defp: true]},
+          {Credo.Check.Readability.StrictModuleLayout,
+           [
+             order: [
+               :moduledoc,
+               :use,
+               :import,
+               :alias,
+               :require,
+               :defstruct,
+               :opaque,
+               :type,
+               :typep,
+               :public_fun,
+               :private_fun
+             ],
+             ignore: [
+               :shortdoc,
+               :behaviour,
+               :callback,
+               :macrocallback,
+               :optional_callbacks,
+               :module_attribute,
+               :public_macro,
+               :private_macro,
+               :callback_impl,
+               :public_guard,
+               :private_guard,
+               :module
+             ]
+           ]}
         ],
         disabled: [
           #
@@ -177,14 +209,14 @@
           {Credo.Check.Design.SkipTestWithoutComment, []},
           # {Credo.Check.Readability.AliasAs, []},
           {Credo.Check.Readability.BlockPipe, []},
-          {Credo.Check.Readability.ImplTrue, []},
+          # {Credo.Check.Readability.ImplTrue, []},
           # {Credo.Check.Readability.MultiAlias, []},
           {Credo.Check.Readability.NestedFunctionCalls, []},
-          {Credo.Check.Readability.SeparateAliasRequire, []},
+          # {Credo.Check.Readability.SeparateAliasRequire, []},
           {Credo.Check.Readability.SingleFunctionToBlockPipe, []},
           {Credo.Check.Readability.SinglePipe, []},
           # {Credo.Check.Readability.Specs, []},
-          {Credo.Check.Readability.StrictModuleLayout, []},
+          # {Credo.Check.Readability.StrictModuleLayout, []},
           {Credo.Check.Readability.WithCustomTaggedTuple, []},
           {Credo.Check.Refactor.ABCSize, []},
           {Credo.Check.Refactor.AppendSingleItem, []},

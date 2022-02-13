@@ -1,18 +1,16 @@
 defmodule Blockchain.BlockchainTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Blockchain.Hash
   alias Blockchain.Transaction
-  alias Blockchain.TransactionIO
   alias Blockchain.Wallet
 
   test "initializing a blockchain" do
     coin_base = Wallet.new()
     wallet_a = Wallet.new()
     genesis_transaction = Transaction.new(coin_base, wallet_a, 100, [])
-    utxo = MapSet.new([TransactionIO.new(100, wallet_a)])
 
-    assert Blockchain.init_blockchain(genesis_transaction, Hash.new("1337cafe"), utxo)
+    assert Blockchain.initialize(genesis_transaction, Hash.new("1337cafe"))
   end
 
   test "block reward calculation" do
@@ -45,11 +43,10 @@ defmodule Blockchain.BlockchainTest do
     coin_base = Wallet.new()
     wallet_a = Wallet.new()
     genesis_transaction = Transaction.new(coin_base, wallet_a, 100, [])
-    utxo = MapSet.new([TransactionIO.new(100, wallet_a)])
 
-    blockchain = Blockchain.init_blockchain(genesis_transaction, Hash.new("1337cafe"), utxo)
+    blockchain = Blockchain.initialize(genesis_transaction, Hash.new("1337cafe"))
 
-    assert Blockchain.add_transaction_to_blockchain(
+    assert Blockchain.add_transaction(
              blockchain,
              Transaction.new(coin_base, wallet_a, 500, [])
            )
@@ -59,11 +56,10 @@ defmodule Blockchain.BlockchainTest do
     coin_base = Wallet.new()
     wallet_a = Wallet.new()
     genesis_transaction = Transaction.new(coin_base, wallet_a, 100, [])
-    utxo = MapSet.new([TransactionIO.new(100, wallet_a)])
 
-    blockchain = Blockchain.init_blockchain(genesis_transaction, Hash.new("1337cafe"), utxo)
+    blockchain = Blockchain.initialize(genesis_transaction, Hash.new("1337cafe"))
 
-    assert Blockchain.send_money_blockchain(blockchain, wallet_a, Wallet.new(), 35)
-           |> Blockchain.valid_blockchain?()
+    assert Blockchain.send_money(blockchain, wallet_a, Wallet.new(), 35)
+           |> Blockchain.valid?()
   end
 end

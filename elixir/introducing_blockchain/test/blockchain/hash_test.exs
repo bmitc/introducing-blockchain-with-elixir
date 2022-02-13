@@ -1,11 +1,11 @@
 defmodule Blockchain.HashTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Blockchain.Hash
 
   doctest Hash
 
-  test "hashes encode strings properly" do
+  test "hashes encode and decode strings properly" do
     test_string = "hash test string for encoding"
 
     assert test_string ==

@@ -7,8 +7,9 @@ defmodule Blockchain.Hash do
   # The primary reason for this hash type implementation is because Elixir treats
   # strings as UTF-8. This means that many hashes will often simply display as
   # binaries when printed out rather than a "readable" string. Thus, we treat hashes
-  # as UTF-16 strings, so that their value can appear as a string that can be easily
-  # copied, if needed.
+  # as UTF-16 strings, so that their value can appear more compactly as a string.
+  #
+  # In addition, having a type for hashes makes many functions more clear.
 
   @enforce_keys [:value]
   defstruct @enforce_keys

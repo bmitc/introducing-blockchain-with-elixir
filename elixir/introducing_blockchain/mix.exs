@@ -23,6 +23,7 @@ defmodule IntroducingBlockchain.MixProject do
     [
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:ex_check, "~> 0.14.0", only: [:dev], runtime: false},
       {:ex_crypto, "~> 0.10.0"}
     ]
   end

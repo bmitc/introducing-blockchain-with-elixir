@@ -1,5 +1,5 @@
 defmodule Blockchain.UtilitiesTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Blockchain.Transaction
   alias Blockchain.Utilities
@@ -7,23 +7,17 @@ defmodule Blockchain.UtilitiesTest do
 
   doctest Utilities
 
-  setup do
-    temporary_directory = System.tmp_dir!()
-
-    temporary_file_path = Path.join(temporary_directory, "test.txt")
-
-    on_exit(fn ->
-      # The File.exists? check is due to setup also being ran before each doctest, but
-      # the doctests don't need a temporary file to run
-      if File.exists?(temporary_file_path) do
-        File.rm!(temporary_file_path)
-      end
-    end)
-
-    %{temporary_file_path: temporary_file_path}
-  end
-
   describe "writing and reading Elixir data" do
+    # Intentionally scope the setup block so that it isn't ran during doctests
+    setup do
+      temporary_directory = System.tmp_dir!()
+      temporary_file_path = Path.join(temporary_directory, "test.txt")
+
+      on_exit(fn -> File.rm!(temporary_file_path) end)
+
+      %{temporary_file_path: temporary_file_path}
+    end
+
     test "writing and reading a Transaction", %{temporary_file_path: temporary_file_path} do
       assert_write_and_read(Transaction.new(), temporary_file_path)
     end

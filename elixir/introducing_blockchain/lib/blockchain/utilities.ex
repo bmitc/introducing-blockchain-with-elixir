@@ -4,22 +4,6 @@ defmodule Blockchain.Utilities do
   """
 
   @doc """
-  Returns true if the given predicate is true for all members of the given list,
-  otherwise returns false
-
-  ### Examples
-    iex> Utilities.true_for_all?(fn x -> x > 3 end, [1, 2, 3])
-    false
-
-    iex> Utilities.true_for_all?(fn x -> x > 3 end, [4, 5, 6])
-    true
-  """
-  @spec true_for_all?((any() -> boolean()), list()) :: any()
-  def true_for_all?(predicate, list) do
-    Enum.all?(list, predicate)
-  end
-
-  @doc """
   Writes any Elixir data to a file
   """
   @spec data_to_file(map(), String.t()) :: :ok

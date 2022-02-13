@@ -23,16 +23,16 @@ defmodule Blockchain do
   @doc """
   Initialize a blockchain given a genesis transaction and genesis hash
   """
-  @spec init_blockchain(Transaction.t(), Hash.t(), MapSet.t(TransactionIO)) :: __MODULE__.t()
-  def init_blockchain(%Transaction{} = transaction, seed_hash, utxo) do
-    seed_transaction =
+  @spec initialize(Transaction.t(), Hash.t()) :: __MODULE__.t()
+  def initialize(%Transaction{value: value, to: to} = transaction, seed_hash) do
+    seed_block =
       transaction
-      |> Transaction.process_transaction()
+      |> Transaction.process()
       |> Block.mine_block(seed_hash)
 
     %__MODULE__{
-      blocks: [seed_transaction],
-      utxo: utxo
+      blocks: [seed_block],
+      utxo: MapSet.new([TransactionIO.new(value, to)])
     }
   end
 
@@ -50,7 +50,8 @@ defmodule Blockchain do
   Helper function to calculate the amount of rewards for mining a given number of blocks
   """
   @spec calculate_reward_factor(non_neg_integer()) :: float()
-  def calculate_reward_factor(number_of_blocks) do
+  def calculate_reward_factor(number_of_blocks)
+      when is_integer(number_of_blocks) and number_of_blocks >= 0 do
     50 / Integer.pow(2, Integer.floor_div(number_of_blocks, 210_000))
   end
 
@@ -60,8 +61,8 @@ defmodule Blockchain do
   the newly mined block is added to the blockchain's list of blocks, and the rewards are
   calculated based on the current UTXO.
   """
-  @spec add_transaction_to_blockchain(__MODULE__.t(), Transaction.t()) :: __MODULE__.t()
-  def add_transaction_to_blockchain(
+  @spec add_transaction(__MODULE__.t(), Transaction.t()) :: __MODULE__.t()
+  def add_transaction(
         %__MODULE__{blocks: blocks, utxo: utxo} = _blockchain,
         %Transaction{from: from, inputs: processed_inputs, outputs: processed_outputs} =
           transaction
@@ -100,8 +101,8 @@ defmodule Blockchain do
   Send money from one wallet to another on the blockchain by initiating a transaction and processing
   it. The transaction is added to the blockchain only if it is valid.
   """
-  @spec send_money_blockchain(__MODULE__.t(), Wallet.t(), Wallet.t(), number()) :: __MODULE__.t()
-  def send_money_blockchain(
+  @spec send_money(__MODULE__.t(), Wallet.t(), Wallet.t(), number()) :: __MODULE__.t()
+  def send_money(
         %__MODULE__{utxo: utxo} = blockchain,
         %Wallet{} = from,
         %Wallet{} = to,
@@ -112,14 +113,14 @@ defmodule Blockchain do
 
     transaction = Transaction.new(from, to, value, receiver_transaction_ios)
 
-    processed_transaction = Transaction.process_transaction(transaction)
+    processed_transaction = Transaction.process(transaction)
 
     # If the balance of the sending wallet is greater than or equal to the value being sent
     # and the processed transaction is valid, add the transaction to the blockchain.
     # Otherwise, return the blockchain unchanged.
     if balance_wallet_blockchain(blockchain, from) >= value and
-         Transaction.valid_transaction?(processed_transaction) do
-      add_transaction_to_blockchain(blockchain, processed_transaction)
+         Transaction.valid?(processed_transaction) do
+      add_transaction(blockchain, processed_transaction)
     else
       blockchain
     end
@@ -128,23 +129,23 @@ defmodule Blockchain do
   @doc """
   Validates a blockchain
   """
-  @spec valid_blockchain?(__MODULE__.t()) :: boolean()
-  def valid_blockchain?(%__MODULE__{blocks: blocks} = _blockchain) do
+  @spec valid?(__MODULE__.t()) :: boolean()
+  def valid?(%__MODULE__{blocks: blocks} = _blockchain) do
     all_blocks_except_last =
       blocks |> Enum.map(fn block -> block.previous_hash end) |> Enum.drop(-1)
 
     all_blocks_except_first =
       blocks |> Enum.map(fn block -> block.current_hash end) |> Enum.drop(1)
 
-    Enum.all?(blocks, &Block.valid_block?/1) and
+    Enum.all?(blocks, &Block.valid?/1) and
       all_blocks_except_last == all_blocks_except_first and
       Enum.all?(
         Enum.map(blocks, fn block -> block.data end),
-        &Transaction.valid_transaction?/1
+        &Transaction.valid?/1
       ) and
       Enum.all?(
         Enum.map(blocks, fn block -> block.current_hash end),
-        &Block.mined_block?/1
+        &Block.mined?/1
       )
   end
 end
