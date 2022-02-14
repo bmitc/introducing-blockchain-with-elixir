@@ -1,0 +1,271 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# Section 3.6 Integrating Components
+
+## Dependencies and helper module
+
+```elixir
+alias Blockchain.{
+  Block,
+  Hash,
+  Main,
+  Transaction,
+  TransactionIO,
+  Utilities,
+  Wallet
+}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[Blockchain.Block, Blockchain.Hash, Blockchain.Main, Blockchain.Transaction,
+ Blockchain.TransactionIO, Blockchain.Utilities, Blockchain.Wallet]
+```
+
+```elixir
+defmodule Blockchain.Main do
+  @doc """
+  Helper module that provides various printing functionality
+  """
+
+  alias Blockchain
+  alias Blockchain.Block
+  alias Blockchain.Wallet
+
+  @spec print_blockchain(Blockchain.t()) :: Blockchain.t()
+  def print_blockchain(%Blockchain{blocks: blocks} = blockchain) do
+    for block <- blocks do
+      block
+      |> Block.format()
+      |> IO.puts()
+    end
+
+    blockchain
+  end
+
+  @spec print_wallets(Blockchain.t(), Wallet.t(), Wallet.t()) :: Blockchain.t()
+  def print_wallets(%Blockchain{} = blockchain, %Wallet{} = wallet_a, %Wallet{} = wallet_b) do
+    """
+    Wallet A balance: #{Blockchain.balance_wallet_blockchain(blockchain, wallet_a)}
+    Wallet B balance: #{Blockchain.balance_wallet_blockchain(blockchain, wallet_b)}
+    
+    """
+    |> IO.puts()
+
+    blockchain
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, Blockchain.Main, <<70, 79, 82, 49, 0, 0, 11, ...>>, {:print_wallets, 3}}
+```
+
+## Main
+
+```elixir
+file_path = Path.join(__DIR__, "blockchain")
+
+if File.exists?(file_path) do
+  IO.puts("Found 'blockchain.data', reading ...\n")
+
+  file_path
+  |> Utilities.file_to_data()
+  |> Main.print_blockchain()
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+nil
+```
+
+Initialize wallets ...
+
+```elixir
+coin_base = Wallet.new()
+wallet_a = Wallet.new()
+wallet_b = Wallet.new()
+:ok
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+Make genesis transaction ...
+
+```elixir
+genesis_transaction = Transaction.new(coin_base, wallet_a, 100, [])
+:ok
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+Initialize blockchain and print wallet balances ...
+
+```elixir
+blockchain = Blockchain.initialize(genesis_transaction, Hash.new("1337cafe"))
+Main.print_wallets(blockchain, wallet_a, wallet_b)
+:ok
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Wallet A balance: 100
+Wallet B balance: 0
+
+
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+Make second and third transactions ...
+
+```elixir
+blockchain =
+  blockchain
+  |> Blockchain.send_money(wallet_a, wallet_b, 2)
+  |> Main.print_wallets(wallet_a, wallet_b)
+  |> Blockchain.send_money(wallet_b, wallet_a, 1)
+  |> Main.print_wallets(wallet_a, wallet_b)
+  |> Blockchain.send_money(wallet_b, wallet_a, 3)
+  |> Main.print_wallets(wallet_a, wallet_b)
+
+:ok
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Wallet A balance: 148.0
+Wallet B balance: 2
+
+
+Wallet A balance: 149.0
+Wallet B balance: 51.0
+
+
+Wallet A balance: 152.0
+Wallet B balance: 98.0
+
+
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+```elixir
+blockchain = blockchain
+
+:ok
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Wallet A balance: 143.0
+Wallet B balance: 107.0
+
+
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+Check blockchain validity ...
+
+```elixir
+IO.puts("Blockchain is valid?: #{Blockchain.valid?(blockchain)}")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Blockchain is valid?: true
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+Print all blocks in blockchain ...
+
+```elixir
+Main.print_blockchain(blockchain)
+:ok
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Block information
+=================
+Hash: 2020710067ea4f2c341f2e67cdf36276e78fa037aa47a36093b6ee757accdfb9
+Previous Hash: 2020c860b782cd727d0f2ecbe43c8cf608cb1cbf25541576e0629b4eac23fe34
+Timestamp: 2022-02-14 02:57:47.341000Z
+Nonce: 92254
+Data: ... aef1 ... sends ... 1a9c ... an amount of 3.
+
+
+
+Block information
+=================
+Hash: 2020c860b782cd727d0f2ecbe43c8cf608cb1cbf25541576e0629b4eac23fe34
+Previous Hash: 20206a9129990d0833870de3d6eeae9506915eeb188f6611f293e5005aafd0a4
+Timestamp: 2022-02-14 02:57:07.966000Z
+Nonce: 124972
+Data: ... aef1 ... sends ... 1a9c ... an amount of 10.
+
+
+
+Block information
+=================
+Hash: 20206a9129990d0833870de3d6eeae9506915eeb188f6611f293e5005aafd0a4
+Previous Hash: 2020f8d2796aa59ff0dc9849aed36fac26c475e563a2f92d3510b42c55d7eb90
+Timestamp: 2022-02-14 02:57:06.282000Z
+Nonce: 88721
+Data: ... 1a9c ... sends ... aef1 ... an amount of 20.
+
+
+
+Block information
+=================
+Hash: 2020f8d2796aa59ff0dc9849aed36fac26c475e563a2f92d3510b42c55d7eb90
+Previous Hash: 3133333763616665
+Timestamp: 2022-02-14 02:55:35.684000Z
+Nonce: 9662
+Data: ... bc88 ... sends ... 1a9c ... an amount of 100.
+
+
+
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```

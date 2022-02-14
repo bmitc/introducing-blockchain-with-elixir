@@ -22,23 +22,31 @@ defmodule Blockchain.Hash do
           }
 
   @doc """
-  Create a new hash from a normal Elixir string
+  Create a new hash from a normal Elixir string or binary data
 
   ### Examples
   iex> Hash.new("test")
   %Hash{value: "74657374"}
   """
-  @spec new(String.t()) :: __MODULE__.t()
+  @spec new(String.t() | binary()) :: __MODULE__.t()
   def new(string) do
     %__MODULE__{value: Base.encode16(string, case: :lower)}
   end
 
   @doc """
-  Converts a hash to an Elixir string
+  Converts a hash to the underlying Elixir string
   """
-  @spec to_string(__MODULE__.t()) :: String.t()
-  def to_string(%__MODULE__{} = hash) do
+  @spec to_binary(__MODULE__.t()) :: binary()
+  def to_binary(%__MODULE__{} = hash) do
     hash.value |> Base.decode16!(case: :lower)
+  end
+
+  @doc """
+  Converts a hash to a UTF-16 encoded string
+  """
+  @spec to_encoded_string(__MODULE__.t()) :: String.t()
+  def to_encoded_string(%__MODULE__{} = hash) do
+    hash.value
   end
 
   @doc """

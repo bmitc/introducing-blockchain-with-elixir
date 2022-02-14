@@ -136,7 +136,7 @@ defmodule Blockchain.Transaction do
           :erlang.term_to_binary(transaction.to),
           to_string(transaction.value)
         ],
-        Hash.to_string(transaction.signature),
+        Hash.to_binary(transaction.signature),
         public_key
       )
 
@@ -156,6 +156,17 @@ defmodule Blockchain.Transaction do
       Enum.all?(outputs, &TransactionIO.valid?/1),
       sum_inputs >= sum_outputs
     ])
+  end
+
+  @spec format(__MODULE__.t()) :: String.t()
+  def format(%__MODULE__{from: from, to: to, value: value} = _transaction) do
+    from_address =
+      :erlang.binary_part(ExPublicKey.RSAPublicKey.get_fingerprint(from.public_key), 60, 4)
+
+    to_address =
+      :erlang.binary_part(ExPublicKey.RSAPublicKey.get_fingerprint(to.public_key), 60, 4)
+
+    "... #{from_address} ... sends ... #{to_address} ... an amount of #{value}.\n"
   end
 
   # Helper function to sum all `TransactionIO` values

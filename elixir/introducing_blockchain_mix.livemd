@@ -127,3 +127,10 @@ IO.inspect(
 wallet = Wallet.new()
 ExPublicKey.encrypt_private(ExCrypto.Hash.sha256!(["test", "asdf"]), wallet.private_key)
 ```
+
+##### Exercise 3-13
+
+```elixir
+Transaction.new(Wallet.new(), Wallet.new(), 500, [])
+|> Transaction.format()
+```

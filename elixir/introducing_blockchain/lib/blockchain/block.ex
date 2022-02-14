@@ -33,7 +33,7 @@ defmodule Blockchain.Block do
       ) do
     # Append all data as a list of binaries or strings and then hash the list
     ExCrypto.Hash.sha256!([
-      Hash.to_string(previous_hash),
+      Hash.to_binary(previous_hash),
       DateTime.to_string(timestamp),
       :erlang.term_to_binary(transaction),
       Integer.to_string(nonce)
@@ -113,6 +113,28 @@ defmodule Blockchain.Block do
   @spec mine_block(Transaction.t(), Hash.t()) :: __MODULE__.t()
   def mine_block(%Transaction{} = transaction, previous_hash) do
     make_and_mine_block(previous_hash, DateTime.utc_now(), transaction, 1)
+  end
+
+  @spec format(__MODULE__.t()) :: String.t()
+  def format(
+        %__MODULE__{
+          current_hash: current_hash,
+          previous_hash: previous_hash,
+          data: transaction,
+          timestamp: timestamp,
+          nonce: nonce
+        } = _block
+      ) do
+    """
+    Block information
+    =================
+    Hash: #{Hash.to_encoded_string(current_hash)}
+    Previous Hash: #{Hash.to_encoded_string(previous_hash)}
+    Timestamp: #{DateTime.to_string(timestamp)}
+    Nonce: #{to_string(nonce)}
+    Data: #{Transaction.format(transaction)}
+
+    """
   end
 
   # Helper function to set the number of bytes a target will have

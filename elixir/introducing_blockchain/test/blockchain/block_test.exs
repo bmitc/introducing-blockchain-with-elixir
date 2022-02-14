@@ -10,4 +10,12 @@ defmodule Blockchain.BlockTest do
 
     assert Block.valid?(mined_block)
   end
+
+  test "formatting a block" do
+    mined_block = Block.mine_block(Transaction.new(), Hash.new("some hash"))
+
+    assert mined_block
+           |> Block.format()
+           |> String.valid?()
+  end
 end
