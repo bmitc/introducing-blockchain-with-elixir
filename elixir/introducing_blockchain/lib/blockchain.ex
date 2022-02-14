@@ -39,7 +39,7 @@ defmodule Blockchain do
   @doc """
   Calculates the rewards for the number of blocks
   """
-  @spec mining_reward_factor([Block.t()]) :: float()
+  @spec mining_reward_factor([Block.t()]) :: number()
   def mining_reward_factor(blocks) do
     blocks
     |> Enum.count()
@@ -49,7 +49,7 @@ defmodule Blockchain do
   @doc """
   Helper function to calculate the amount of rewards for mining a given number of blocks
   """
-  @spec calculate_reward_factor(non_neg_integer()) :: float()
+  @spec calculate_reward_factor(non_neg_integer()) :: number()
   def calculate_reward_factor(number_of_blocks)
       when is_integer(number_of_blocks) and number_of_blocks >= 0 do
     50 / Integer.pow(2, Integer.floor_div(number_of_blocks, 210_000))
