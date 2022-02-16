@@ -18,13 +18,13 @@ defmodule Blockchain.Block do
           previous_hash: Hash.t(),
           data: Transaction.t(),
           timestamp: DateTime.t(),
-          nonce: integer()
+          nonce: non_neg_integer()
         }
 
   @doc """
   Calculates a block's hash using the SHA hashing algorithm
   """
-  @spec calculate_hash(Hash.t(), DateTime.t(), Transaction.t(), integer()) :: Hash.t()
+  @spec calculate_hash(Hash.t(), DateTime.t(), Transaction.t(), non_neg_integer()) :: Hash.t()
   def calculate_hash(
         previous_hash,
         %DateTime{} = timestamp,
@@ -60,8 +60,8 @@ defmodule Blockchain.Block do
   end
 
   @doc """
-  Determines if a block has been mined according to if the given hash matches
-  the target
+  Determines if a block has been mined according to if the block's current
+  hash matches the target
   """
   @spec mined?(Hash.t()) :: boolean()
   def mined?(block_hash) do
@@ -71,13 +71,15 @@ defmodule Blockchain.Block do
   @doc """
   Implements the Hashcash procedure
   """
-  @spec make_and_mine_block(Hash.t(), DateTime.t(), Transaction.t(), integer()) :: __MODULE__.t()
+  @spec make_and_mine_block(Hash.t(), DateTime.t(), Transaction.t(), non_neg_integer()) ::
+          __MODULE__.t()
   def make_and_mine_block(
         previous_hash,
         %DateTime{} = timestamp,
         %Transaction{} = transaction,
         nonce
-      ) do
+      )
+      when nonce >= 0 and is_integer(nonce) do
     current_hash =
       calculate_hash(
         previous_hash,
@@ -115,6 +117,9 @@ defmodule Blockchain.Block do
     make_and_mine_block(previous_hash, DateTime.utc_now(), transaction, 1)
   end
 
+  @doc """
+  Formats a block as a string suitable for printing
+  """
   @spec format(__MODULE__.t()) :: String.t()
   def format(
         %__MODULE__{

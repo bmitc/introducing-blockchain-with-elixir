@@ -14,7 +14,7 @@ defmodule Blockchain.Transaction do
   Represents a transaction
   """
   @type t :: %__MODULE__{
-          signature: Hash.t(),
+          signature: Hash.t() | nil,
           from: Wallet.t(),
           to: Wallet.t(),
           value: number(),
@@ -25,25 +25,10 @@ defmodule Blockchain.Transaction do
   @doc """
   Creates a new transaction
   """
-  @spec new() :: __MODULE__.t()
-  def new do
-    %__MODULE__{
-      signature: Hash.new(""),
-      from: Wallet.new(),
-      to: Wallet.new(),
-      value: 0,
-      inputs: [],
-      outputs: []
-    }
-  end
-
-  @doc """
-  Creates a new transaction
-  """
   @spec new(Wallet.t(), Wallet.t(), number(), [TransactionIO.t()]) :: __MODULE__.t()
-  def new(%Wallet{} = from, %Wallet{} = to, value, inputs) when is_integer(value) do
+  def new(%Wallet{} = from, %Wallet{} = to, value, inputs \\ []) when is_number(value) do
     %__MODULE__{
-      signature: Hash.new(""),
+      signature: nil,
       from: from,
       to: to,
       value: value,
@@ -53,11 +38,11 @@ defmodule Blockchain.Transaction do
   end
 
   @doc """
-  Updates the transcation's value but does not do any processing
+  Updates the transaction's value but does not do any processing
   """
   @spec update_value(__MODULE__.t(), number()) :: __MODULE__.t()
   def update_value(%__MODULE__{} = transaction, new_value) when is_number(new_value) do
-    %__MODULE__{transaction | value: new_value}
+    %__MODULE__{transaction | signature: nil, value: new_value}
   end
 
   @doc """

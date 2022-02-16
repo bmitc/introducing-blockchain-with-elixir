@@ -13,6 +13,10 @@ alias Blockchain.{
 }
 ```
 
+## Notes
+
+Note all exercises are currently implemented in this notebook, although all required modules and functions for the initial blockchain are implemented.
+
 ## Section 3.1: Wallet
 
 ##### Exercise 3-1
@@ -38,26 +42,11 @@ Documentation links for the ExCrypto package:
 ## Section 3.2: Block
 
 ```elixir
-# ExCrypto.Hash.sha256!(["tet", DateTime.utc_now() |> DateTime.to_string(), "asdf"])
-# |> String.downcase()
-# |> Base.encode16()
-
-# Blockchain.Block.calculate_block_hash("previous hash", DateTime.utc_now(), Blockchain.Transaction.new(), 1)
-
-# Blockchain.Block.target()
-
-# binary_part("asdf", 0, 2)
-```
-
-```elixir
-alias Blockchain.Block
-alias Blockchain.Transaction
-
 mined_block =
   Block.make_and_mine_block(
     Hash.new("234"),
     DateTime.utc_now(),
-    Transaction.new("BoroS", "Boro", "You", "a book"),
+    Transaction.new(Wallet.new(), Wallet.new(), 123, []),
     1
   )
 ```
@@ -73,7 +62,7 @@ Hash.new("test")
 ##### Exercise 3-4
 
 ```elixir
-transaction = Transaction.new("signature", "Bob", "Alice", "SICP")
+transaction = Transaction.new(Wallet.new(), Wallet.new(), 123, [])
 
 block = %Block{
   current_hash: Hash.new(""),
@@ -83,7 +72,7 @@ block = %Block{
   nonce: 1
 }
 
-Block.calculate_block_hash(block)
+Block.calculate_hash(block)
 ```
 
 ##### Exercise 3-5
@@ -95,32 +84,32 @@ mined_block = Block.make_and_mine_block(block)
 ##### Exercise 3-6
 
 ```elixir
-IO.inspect(Block.valid_block?(mined_block), label: "Mined block valid?")
+IO.inspect(Block.valid?(mined_block), label: "Mined block valid?")
 
-IO.inspect(Block.valid_block?(%{mined_block | nonce: 1}), label: "Block with nonce=1 valid?")
+IO.inspect(Block.valid?(%{mined_block | nonce: 1}), label: "Block with nonce=1 valid?")
+
+:ok
 ```
 
 ## Section 3.4: Transactions
 
 ```elixir
-IO.inspect(TransactionIO.new(123, "Some person"), label: "New TransactionIO")
-
-transaction_io = TransactionIO.new(123, "Some person")
-
 IO.inspect(
-  TransactionIO.valid_transaction_io?(transaction_io),
+  TransactionIO.valid?(TransactionIO.new(123, Wallet.new())),
   label: "Valid TransactionIO?"
 )
 
 IO.inspect(
-  TransactionIO.valid_transaction_io?(%TransactionIO{
+  TransactionIO.valid?(%TransactionIO{
     transaction_hash: Hash.new("badhash"),
     value: 123,
-    owner: "Some Person",
+    owner: Wallet.new(),
     timestamp: DateTime.utc_now()
   }),
   label: "Valid TransactionIO?"
 )
+
+:ok
 ```
 
 ```elixir

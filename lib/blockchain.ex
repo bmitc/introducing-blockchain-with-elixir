@@ -131,21 +131,23 @@ defmodule Blockchain do
   """
   @spec valid?(__MODULE__.t()) :: boolean()
   def valid?(%__MODULE__{blocks: blocks} = _blockchain) do
-    all_blocks_except_last =
+    all_previous_hashes_except_last =
       blocks |> Enum.map(fn block -> block.previous_hash end) |> Enum.drop(-1)
 
-    all_blocks_except_first =
+    all_current_hashes_except_first =
       blocks |> Enum.map(fn block -> block.current_hash end) |> Enum.drop(1)
 
-    Enum.all?(blocks, &Block.valid?/1) and
-      all_blocks_except_last == all_blocks_except_first and
-      Enum.all?(
-        Enum.map(blocks, fn block -> block.data end),
-        &Transaction.valid?/1
-      ) and
-      Enum.all?(
-        Enum.map(blocks, fn block -> block.current_hash end),
-        &Block.mined?/1
-      )
+    all_blocks_valid? = Enum.all?(blocks, &Block.valid?/1)
+
+    all_transactions_valid? =
+      Enum.all?(Enum.map(blocks, fn block -> block.data end), &Transaction.valid?/1)
+
+    all_blocks_mined? =
+      Enum.all?(Enum.map(blocks, fn block -> block.current_hash end), &Block.mined?/1)
+
+    all_previous_hashes_except_last == all_current_hashes_except_first and
+      all_blocks_valid? and
+      all_transactions_valid? and
+      all_blocks_mined?
   end
 end

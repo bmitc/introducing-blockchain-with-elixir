@@ -62,7 +62,7 @@ defmodule Blockchain.TransactionIO do
 
   @doc """
   Determines if a transaction IO is valid or not by re-calculating the transction IO's
-  hash and comparing it to the transaction IO's hash
+  hash and comparing it to the transaction IO's existing hash
   """
   @spec valid?(__MODULE__.t()) :: boolean()
   def valid?(%__MODULE__{} = transaction_io) do

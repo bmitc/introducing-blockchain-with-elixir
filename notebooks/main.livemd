@@ -49,7 +49,7 @@ defmodule Blockchain.Main do
     """
     Wallet A balance: #{Blockchain.balance_wallet_blockchain(blockchain, wallet_a)}
     Wallet B balance: #{Blockchain.balance_wallet_blockchain(blockchain, wallet_b)}
-    
+
     """
     |> IO.puts()
 
@@ -140,11 +140,12 @@ Make second and third transactions ...
 ```elixir
 blockchain =
   blockchain
-  |> Blockchain.send_money(wallet_a, wallet_b, 2)
+  |> Blockchain.send_money(wallet_a, wallet_b, 20)
   |> Main.print_wallets(wallet_a, wallet_b)
-  |> Blockchain.send_money(wallet_b, wallet_a, 1)
+  |> Blockchain.send_money(wallet_b, wallet_a, 10)
   |> Main.print_wallets(wallet_a, wallet_b)
-  |> Blockchain.send_money(wallet_b, wallet_a, 3)
+  # Send invalid transaction
+  |> Blockchain.send_money(wallet_b, wallet_a, 100)
   |> Main.print_wallets(wallet_a, wallet_b)
 
 :ok
@@ -153,30 +154,18 @@ blockchain =
 <!-- livebook:{"output":true} -->
 
 ```
-Wallet A balance: 148.0
-Wallet B balance: 2
+Wallet A balance: 130.0
+Wallet B balance: 20
 
 
-Wallet A balance: 149.0
-Wallet B balance: 51.0
+Wallet A balance: 140.0
+Wallet B balance: 60.0
 
 
-Wallet A balance: 152.0
-Wallet B balance: 98.0
+Wallet A balance: 140.0
+Wallet B balance: 60.0
 
 
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-:ok
-```
-
-```elixir
-blockchain = blockchain
-
-:ok
 ```
 
 <!-- livebook:{"output":true} -->
@@ -215,41 +204,31 @@ Main.print_blockchain(blockchain)
 ```
 Block information
 =================
-Hash: 2020e3ce8cf0a0b988c15a948ebcd0aad2018dacf29e8ea5157621758385c922
-Previous Hash: 2020ebe651423ce4b119b5bcffead93bf411e4e837ec4213d9301ffb25cbf956
-Timestamp: 2022-02-14 03:37:36.696000Z
-Nonce: 95226
-Data: ... c59c ... sends ... cbf2 ... an amount of 3.
+Hash: 2020e612345df13a120b0f00af02765f762669dae0a09d47abe216a52dbd8495
+Previous Hash: 2020773d25fcab12b51ccc5bff989571d500371332f88ef56d143b12124567e5
+Timestamp: 2022-02-16 02:03:55.852000Z
+Nonce: 113882
+Data: ... 3be4 ... sends ... 72c5 ... an amount of 10.
 
 
 
 Block information
 =================
-Hash: 2020ebe651423ce4b119b5bcffead93bf411e4e837ec4213d9301ffb25cbf956
-Previous Hash: 2020b2642f6307b9c027cb87f739f98b3bb629fcd4003045cee72b6037c2e3c5
-Timestamp: 2022-02-14 03:37:36.623000Z
-Nonce: 4092
-Data: ... c59c ... sends ... cbf2 ... an amount of 1.
+Hash: 2020773d25fcab12b51ccc5bff989571d500371332f88ef56d143b12124567e5
+Previous Hash: 2020e0fefe4bb924bbe08f6edb84d241ae98d365eec36e86ec9979072d196219
+Timestamp: 2022-02-16 02:03:53.341000Z
+Nonce: 145956
+Data: ... 72c5 ... sends ... 3be4 ... an amount of 20.
 
 
 
 Block information
 =================
-Hash: 2020b2642f6307b9c027cb87f739f98b3bb629fcd4003045cee72b6037c2e3c5
-Previous Hash: 2020ac93a883c7beca1b55bb457246f12bdfdd194ce98c0a9baf1c3fe89aca40
-Timestamp: 2022-02-14 03:37:33.710000Z
-Nonce: 148407
-Data: ... cbf2 ... sends ... c59c ... an amount of 2.
-
-
-
-Block information
-=================
-Hash: 2020ac93a883c7beca1b55bb457246f12bdfdd194ce98c0a9baf1c3fe89aca40
+Hash: 2020e0fefe4bb924bbe08f6edb84d241ae98d365eec36e86ec9979072d196219
 Previous Hash: 3133333763616665
-Timestamp: 2022-02-14 03:37:33.005000Z
-Nonce: 43473
-Data: ... 187c ... sends ... cbf2 ... an amount of 100.
+Timestamp: 2022-02-16 02:03:51.010000Z
+Nonce: 137261
+Data: ... 2c84 ... sends ... 72c5 ... an amount of 100.
 
 
 

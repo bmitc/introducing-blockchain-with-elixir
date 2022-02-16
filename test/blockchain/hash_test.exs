@@ -15,6 +15,21 @@ defmodule Blockchain.HashTest do
              |> Base.decode16!(case: :lower)
   end
 
+  test "converting to binary" do
+    assert Hash.new("asdfghjkl;")
+           |> Hash.to_binary()
+           |> is_binary()
+  end
+
+  test "converting to UTF-16 encoded string" do
+    test_string = "qwertyuiop[]asdfghjkl;'zxcvbnm,./"
+
+    assert Base.encode16(test_string, case: :lower) ==
+             test_string
+             |> Hash.new()
+             |> Hash.to_encoded_string()
+  end
+
   test "part gets subpart correctly" do
     assert Hash.part(Hash.new("asdfqwerty"), 1, 5) == Hash.new("sdfqw")
   end
