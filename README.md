@@ -28,7 +28,7 @@ The exercises in the book and also the equivalent of the `main.rkt` file are imp
 1. [Install Livebook](https://livebook.dev/#install)
 2. Run `livebook server` (if there's a port conflict with the default port of `8080` use the `--port` option to specify another port, e.g., `livebook server --port 8086`)
 3. Navigate to the URL the Livebook application is running at (this is printed to the terminal after running the above command)
-4. Open the `<wherever>/introducing-blockchain/notebooks/introducing_blockchain_main.livemd` notebook
+4. Open the `<wherever>/introducing-blockchain/notebooks/main.livemd` notebook
 5. Go to **Settings** -> **Configure** and select **Mix standalone**. Then browse to `<wherever>/introducing-blockchain/` and click **Connect**.
     - This will connect the notebook to the Mix project, download all dependencies, and compile the project.
 
