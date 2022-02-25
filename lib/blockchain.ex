@@ -4,6 +4,7 @@ defmodule Blockchain do
   """
 
   alias Blockchain.Block
+  alias Blockchain.Extensions.SmartContracts
   alias Blockchain.Hash
   alias Blockchain.Transaction
   alias Blockchain.TransactionIO
@@ -101,12 +102,14 @@ defmodule Blockchain do
   Send money from one wallet to another on the blockchain by initiating a transaction and processing
   it. The transaction is added to the blockchain only if it is valid.
   """
-  @spec send_money(__MODULE__.t(), Wallet.t(), Wallet.t(), number()) :: __MODULE__.t()
+  @spec send_money(__MODULE__.t(), Wallet.t(), Wallet.t(), number(), SmartContracts.contract()) ::
+          __MODULE__.t()
   def send_money(
         %__MODULE__{utxo: utxo} = blockchain,
         %Wallet{} = from,
         %Wallet{} = to,
-        value
+        value,
+        contract \\ []
       ) do
     receiver_transaction_ios =
       Enum.filter(utxo, fn transaction_io -> from == transaction_io.owner end)
@@ -119,7 +122,7 @@ defmodule Blockchain do
     # and the processed transaction is valid, add the transaction to the blockchain.
     # Otherwise, return the blockchain unchanged.
     if balance_wallet_blockchain(blockchain, from) >= value and
-         Transaction.valid?(processed_transaction) do
+         SmartContracts.valid_transaction_contract?(processed_transaction, contract) do
       add_transaction(blockchain, processed_transaction)
     else
       blockchain

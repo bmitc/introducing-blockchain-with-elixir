@@ -7,6 +7,7 @@
 ```elixir
 alias Blockchain.{
   Block,
+  Extensions.SmartContracts,
   Hash,
   Main,
   Transaction,
@@ -19,8 +20,8 @@ alias Blockchain.{
 <!-- livebook:{"output":true} -->
 
 ```
-[Blockchain.Block, Blockchain.Hash, Blockchain.Main, Blockchain.Transaction,
- Blockchain.TransactionIO, Blockchain.Utilities, Blockchain.Wallet]
+[Blockchain.Block, Blockchain.Extensions.SmartContracts, Blockchain.Hash, Blockchain.Main,
+ Blockchain.Transaction, Blockchain.TransactionIO, Blockchain.Utilities, Blockchain.Wallet]
 ```
 
 ```elixir
@@ -204,32 +205,59 @@ Main.print_blockchain(blockchain)
 ```
 Block information
 =================
-Hash: 2020e612345df13a120b0f00af02765f762669dae0a09d47abe216a52dbd8495
-Previous Hash: 2020773d25fcab12b51ccc5bff989571d500371332f88ef56d143b12124567e5
-Timestamp: 2022-02-16 02:03:55.852000Z
-Nonce: 113882
-Data: ... 3be4 ... sends ... 72c5 ... an amount of 10.
+Hash: 20204dc074625780dfaed919a70c0f4d82e3e37a6edd6e41386551e69f72daab
+Previous Hash: 202071c16890af8ceef2286ae1dbc7a39c58b4671db0dc5f333d94725768a612
+Timestamp: 2022-02-25 05:04:50.172000Z
+Nonce: 40221
+Data: ... 913a ... sends ... 3d50 ... an amount of 10.
 
 
 
 Block information
 =================
-Hash: 2020773d25fcab12b51ccc5bff989571d500371332f88ef56d143b12124567e5
-Previous Hash: 2020e0fefe4bb924bbe08f6edb84d241ae98d365eec36e86ec9979072d196219
-Timestamp: 2022-02-16 02:03:53.341000Z
-Nonce: 145956
-Data: ... 72c5 ... sends ... 3be4 ... an amount of 20.
+Hash: 202071c16890af8ceef2286ae1dbc7a39c58b4671db0dc5f333d94725768a612
+Previous Hash: 202020bdc6975a8943c71c7b7cea632c9fc93846c8f8c7acd0b66d7475124439
+Timestamp: 2022-02-25 05:04:49.328000Z
+Nonce: 45103
+Data: ... 3d50 ... sends ... 913a ... an amount of 20.
 
 
 
 Block information
 =================
-Hash: 2020e0fefe4bb924bbe08f6edb84d241ae98d365eec36e86ec9979072d196219
+Hash: 202020bdc6975a8943c71c7b7cea632c9fc93846c8f8c7acd0b66d7475124439
 Previous Hash: 3133333763616665
-Timestamp: 2022-02-16 02:03:51.010000Z
-Nonce: 137261
-Data: ... 2c84 ... sends ... 72c5 ... an amount of 100.
+Timestamp: 2022-02-25 05:04:49.260000Z
+Nonce: 3598
+Data: ... 0740 ... sends ... 3d50 ... an amount of 100.
 
+
+
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Smart Contracts
+
+```elixir
+contract = {:if, {:=, {:+, 1, 2}, 3}, wallet_a, wallet_b}
+
+blockchain
+|> Blockchain.send_money(wallet_b, wallet_a, 10, contract)
+|> Main.print_wallets(wallet_a, wallet_b)
+
+:ok
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Wallet A balance: 150.0
+Wallet B balance: 100.0
 
 
 ```

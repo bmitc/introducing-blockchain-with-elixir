@@ -19,6 +19,7 @@ defmodule Blockchain.Extensions.SmartContracts do
           | String.t()
           | []
           | {}
+          | %{}
           | binary()
           | {:if, contract(), contract(), contract()}
           | {operator(), contract(), contract()}
@@ -46,6 +47,7 @@ defmodule Blockchain.Extensions.SmartContracts do
       s when is_binary(s) -> s
       [] -> true
       {} -> true
+      %{} -> true
       true -> true
       false -> false
       {:if, condition, tr, fa} -> if eval(t, condition), do: eval(t, tr), else: eval(t, fa)
