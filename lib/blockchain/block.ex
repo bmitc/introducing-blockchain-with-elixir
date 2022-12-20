@@ -144,11 +144,11 @@ defmodule Blockchain.Block do
 
   # Helper function to set the number of bytes a target will have
   @spec difficulty :: non_neg_integer()
-  defp difficulty, do: 2
+  defp difficulty(), do: 2
 
   # A target for comparing hashes of blocks
   @spec target :: Hash.t()
-  defp target do
+  defp target() do
     <<32>>
     |> String.duplicate(difficulty())
     |> Hash.new()

@@ -19,7 +19,7 @@ defmodule Blockchain.Wallet do
   Creates a new wallet
   """
   @spec new() :: __MODULE__.t()
-  def new do
+  def new() do
     {:ok, private_key} = ExPublicKey.generate_key(:rsa, 512, 65_537)
     {:ok, public_key} = ExPublicKey.public_key_from_private_key(private_key)
 
