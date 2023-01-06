@@ -1,3 +1,5 @@
+[![build and test](https://github.com/bmitc/introducing-blockchain-with-elixir/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/bmitc/introducing-blockchain-with-elixir/actions/workflows/build-and-test.yml)
+
 # Introducing Blockchain with Elixir
 
 This code is an [Elixir](https://elixir-lang.org/) implementation of the blockchain described in [*Introducing Blockchain with Lisp* by Boro Sitnikovski](https://link.springer.com/book/10.1007/978-1-4842-6969-5). The code found in the book is written in [Racket](https://racket-lang.org/) and can be found at [this GitHub repo](https://github.com/Apress/introducing-blockchain-with-lisp).
