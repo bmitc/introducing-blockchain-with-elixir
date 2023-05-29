@@ -153,4 +153,15 @@ defmodule Blockchain do
       all_transactions_valid? and
       all_blocks_mined?
   end
+
+  @doc """
+  Gets the blockchain's effort, which is defined as the sum of all
+  blocks' nonces
+  """
+  @spec get_effort(__MODULE__.t()) :: non_neg_integer()
+  def get_effort(%__MODULE__{blocks: blocks} = _blockchain) do
+    blocks
+    |> Enum.map(fn block -> block.nonce end)
+    |> Enum.sum()
+  end
 end
